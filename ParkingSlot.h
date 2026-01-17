@@ -12,6 +12,7 @@ private:
     std::string vehicleNumber;
 
 public:
+bool isOccupied() const { return status == OCCUPIED; }
     ParkingSlot(int id) : slotId(id), status(AVAILABLE), vehicleNumber("") {}
 
     int getSlotId() const { return slotId; }
