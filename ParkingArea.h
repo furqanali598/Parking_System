@@ -24,6 +24,7 @@ private:
 public:
 std::string getAreaName() { return areaName; }
 
+
 ParkingSlot* findEmptySlot() {
     SlotNode* temp = head;
     while (temp) {
@@ -46,6 +47,7 @@ ParkingSlot* findEmptySlot() {
         }
         totalSlots++;
     }
+    
 
     void displayAreaStatus() {
         std::cout << "Area: " << areaName << " | Slots: " << totalSlots << std::endl;
