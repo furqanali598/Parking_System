@@ -23,7 +23,6 @@ bool isOccupied() const { return status == OCCUPIED; }
         vehicleNumber = plate;
         status = OCCUPIED;
     }
-
     void release() {
         vehicleNumber = "";
         status = AVAILABLE;
