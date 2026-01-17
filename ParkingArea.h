@@ -16,11 +16,24 @@ struct SlotNode {
 
 class ParkingArea {
 private:
+
     std::string areaName;
     SlotNode* head;
     int totalSlots;
 
 public:
+std::string getAreaName() { return areaName; }
+
+ParkingSlot* findEmptySlot() {
+    SlotNode* temp = head;
+    while (temp) {
+        if (temp->slot->getStatus() == AVAILABLE) {
+            return temp->slot;
+        }
+        temp = temp->next;
+    }
+    return nullptr; // All slots in this area are full
+}
     ParkingArea(std::string name) : areaName(name), head(nullptr), totalSlots(0) {}
 
     void addSlot(int id) {

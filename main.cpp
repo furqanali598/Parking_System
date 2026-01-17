@@ -3,19 +3,32 @@
 #include "Vehicle.h"
 
 int main() {
-    // 1. Create a Zone
     Zone northZone("North Sector");
-
-    // 2. Add Areas to that Zone
     northZone.addArea("Block-A");
     northZone.addArea("Block-B");
+    northZone.addSlotsToArea("Block-A", 2); // Small number for testing
+    northZone.addSlotsToArea("Block-B", 2);
 
-    // 3. IMPORTANT: Get a reference to the areas and add slots 
-    // (We will add a helper in Zone.h next to make this easier, 
-    // but for now, let's verify the display works with slots)
-    
-    northZone.displayZoneSummary();
+    int choice;
+    std::string plate;
 
-    std::cout << "\nSuccess! The hierarchy is working." << std::endl;
+    while (true) {
+        std::cout << "\n--- Smart Parking System ---" << std::endl;
+        std::cout << "1. Display Zone Status" << std::endl;
+        std::cout << "2. Park a Vehicle" << std::endl;
+        std::cout << "3. Exit" << std::endl;
+        std::cout << "Enter choice: ";
+        std::cin >> choice;
+
+        if (choice == 1) {
+            northZone.displayZoneSummary();
+        } else if (choice == 2) {
+            std::cout << "Enter License Plate: ";
+            std::cin >> plate;
+            northZone.parkVehicle(plate);
+        } else if (choice == 3) {
+            break;
+        }
+    }
     return 0;
 }
