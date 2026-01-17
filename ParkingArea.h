@@ -1,6 +1,5 @@
 #ifndef PARKINGAREA_H
 #define PARKINGAREA_H
-
 #include <iostream>
 #include <string>
 #include "ParkingSlot.h" // No "include/" here!
@@ -16,15 +15,11 @@ struct SlotNode {
 
 class ParkingArea {
 private:
-
     std::string areaName;
     SlotNode* head;
     int totalSlots;
-
 public:
 std::string getAreaName() { return areaName; }
-
-
 ParkingSlot* findEmptySlot() {
     SlotNode* temp = head;
     while (temp) {
@@ -53,5 +48,4 @@ ParkingSlot* findEmptySlot() {
         std::cout << "Area: " << areaName << " | Slots: " << totalSlots << std::endl;
     }
 };
-
 #endif
