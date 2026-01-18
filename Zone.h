@@ -71,33 +71,32 @@ public:
         return false;
     }
 
-    bool releaseVehicle(std::string plate) {
-        AreaNode* tempArea = areaHead;
-        while (tempArea) {
-            SlotNode* tempSlot = tempArea->area->getHead();
-            while (tempSlot) {
-                if (tempSlot->slot->getStatus() == OCCUPIED && tempSlot->slot->getPlate() == plate) {
-                    time_t exitTime = time(0);
-                    double seconds = difftime(exitTime, tempSlot->slot->getVehicle()->getEntryTime());
-                    
-                    // Fee: 50 for Car, 20 for Bike per hour (minimum 1 hour)
-                    double hours = (seconds / 3600.0);
-                    if (hours < 1.0) hours = 1.0; 
-                    double rate = (tempSlot->slot->getVehicle()->getType() == "Car") ? 50.0 : 20.0;
-                    
-                    double fee = hours * rate;
-                    totalEarnings += fee;
+   bool releaseVehicle(std::string plate) {
+    AreaNode* tempArea = areaHead;
+    while (tempArea) {
+        SlotNode* tempSlot = tempArea->area->getHead();
+        while (tempSlot) {
+            if (tempSlot->slot->getStatus() == 1 && tempSlot->slot->getPlate() == plate) {
+                time_t exitTime = time(0);
+                double seconds = difftime(exitTime, tempSlot->slot->getVehicle()->getEntryTime());
+                double hours = (seconds / 3600.0);
+                if (hours < 1.0) hours = 1.0; 
+                double rate = (tempSlot->slot->getVehicle()->getType() == "Car") ? 50.0 : 20.0;
+                double fee = hours * rate;
 
-                    std::cout << "\n--- Receipt ---\nPlate: " << plate << "\nFee: " << fee << " PKR\n--------------" << std::endl;
-                    tempSlot->slot->release();
-                    return true;
-                }
-                tempSlot = tempSlot->next;
+                // POP-UP RECEIPT
+                std::string receipt = "Vehicle: " + plate + "\nCharges: " + std::to_string((int)fee) + " PKR";
+                MessageBoxA(NULL, receipt.c_str(), "Unparking Receipt", MB_OK | MB_ICONINFORMATION);
+
+                tempSlot->slot->release();
+                return true;
             }
-            tempArea = tempArea->next;
+            tempSlot = tempSlot->next;
         }
-        return false;
+        tempArea = tempArea->next;
     }
+    return false;
+}
 
     void displayZoneSummary() {
         std::cout << "\n--- Zone: " << zoneName << " ---" << std::endl;
