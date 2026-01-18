@@ -12,6 +12,8 @@ private:
     std::string vehicleNumber;
 
 public:
+// Get the plate to find the car later
+    std::string getPlate() const { return vehicleNumber; }
 bool isOccupied() const { return status == OCCUPIED; }
     ParkingSlot(int id) : slotId(id), status(AVAILABLE), vehicleNumber("") {}
 

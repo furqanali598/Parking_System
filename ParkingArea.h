@@ -19,6 +19,7 @@ private:
     SlotNode* head;
     int totalSlots;
 public:
+
 std::string getAreaName() { return areaName; }
 ParkingSlot* findEmptySlot() {
     SlotNode* temp = head;
