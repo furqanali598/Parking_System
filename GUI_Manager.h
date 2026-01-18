@@ -148,5 +148,4 @@ public:
 Zone* ParkingGUI::currentZone = nullptr;
 HWND ParkingGUI::hPlateInput = nullptr, ParkingGUI::hTypeCombo = nullptr;
 std::string ParkingGUI::searchQuery = "";
-
 #endif
