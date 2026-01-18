@@ -5,7 +5,7 @@
 #include <string>
 #include "ParkingSlot.h"
 
-// Put the color codes at the top so they are available to the whole file
+// Color codes for Terminal UI
 #define RESET   "\033[0m"
 #define RED     "\033[31m"
 #define GREEN   "\033[32m"
@@ -24,14 +24,16 @@ public:
 class ParkingArea {
 private:
     std::string areaName;
-    SlotNode* head;
+    SlotNode* head; // Head of Slots Linked List
 
 public:
     ParkingArea(std::string name) : areaName(name), head(nullptr) {}
 
+    // Getters
     std::string getAreaName() const { return areaName; }
-    SlotNode* getHead() { return head; }
+    SlotNode* getHead() { return head; } // Needed for GUI to see slots
 
+    // Add a slot to the linked list
     void addSlot(int id) {
         SlotNode* newNode = new SlotNode(id);
         if (!head) {
@@ -43,6 +45,7 @@ public:
         }
     }
 
+    // Find first available slot (Logic)
     ParkingSlot* findEmptySlot() {
         SlotNode* temp = head;
         while (temp) {
@@ -52,17 +55,15 @@ public:
         return nullptr;
     }
 
-    // PASTE THE NEW FUNCTION HERE
+    // Terminal Display with Colors
     void displayAreaStatus() {
         std::cout << "\nArea: " << YELLOW << areaName << RESET << std::endl;
         SlotNode* temp = head;
         while (temp) {
             std::cout << "  Slot " << temp->slot->getSlotId() << ": ";
             if (temp->slot->getStatus() == OCCUPIED) {
-                // Shows plate number in Red
                 std::cout << RED << "[OCCUPIED by " << temp->slot->getPlate() << "]" << RESET << std::endl;
             } else {
-                // Shows Available in Green
                 std::cout << GREEN << "[AVAILABLE]" << RESET << std::endl;
             }
             temp = temp->next;
