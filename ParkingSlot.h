@@ -1,43 +1,48 @@
-#ifndef PARKINGSLOT_H
-#define PARKINGSLOT_H
+#ifndef PARKING_SLOT_H
+#define PARKING_SLOT_H
 
 #include <string>
-#include "Vehicle.h" // <--- ADD THIS LINE
+#include "Vehicle.h"
 
-enum SlotStatus { AVAILABLE, OCCUPIED, RESERVED };
+// Defined these so ParkingArea.h stops complaining
+#define AVAILABLE 0
+#define OCCUPIED 1
 
 class ParkingSlot {
 private:
     int slotId;
-    SlotStatus status;
-    Vehicle* parkedVehicle; // Now the compiler will know what this is
+    int status; 
+    Vehicle* vehicle;
 
 public:
-    ParkingSlot(int id) : slotId(id), status(AVAILABLE), parkedVehicle(nullptr) {}
+    ParkingSlot(int id) : slotId(id), status(AVAILABLE), vehicle(nullptr) {}
 
     int getSlotId() const { return slotId; }
-    SlotStatus getStatus() const { return status; } // Make sure this is public
-    void setStatus(SlotStatus s) { status = s; }
+    int getStatus() const { return status; }
     
-    // Add these helper functions that the errors said were missing
-    Vehicle* getVehicle() { return parkedVehicle; }
-    
-    std::string getPlate() const { 
-        if (parkedVehicle) return parkedVehicle->getPlate();
-        return "";
+    // Helper for GUI and Receipt logic
+    Vehicle* getVehicle() { return vehicle; }
+
+    std::string getPlate() const {
+        return (vehicle != nullptr) ? vehicle->getPlate() : "";
     }
 
+    std::string getType() const {
+        if (vehicle != nullptr) return vehicle->getType();
+        return "Empty";
+    }
+
+    // Renamed to occupy to match your Zone.h
     void occupy(Vehicle* v) {
-        parkedVehicle = v;
+        vehicle = v;
         status = OCCUPIED;
     }
 
     void release() {
-        if (parkedVehicle) {
-            delete parkedVehicle;
-            parkedVehicle = nullptr;
-        }
+        delete vehicle;
+        vehicle = nullptr;
         status = AVAILABLE;
     }
 };
+
 #endif

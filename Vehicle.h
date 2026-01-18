@@ -7,27 +7,17 @@
 class Vehicle {
 private:
     std::string plateNumber;
-    std::string type;     // "Car" or "Bike"
-    time_t entryTime;     // Stores the timestamp of when the vehicle parked
+    std::string type;
+    time_t entryTime;
 
 public:
-    // Constructor
-    Vehicle(std::string plate, std::string vType) {
-        plateNumber = plate;
-        type = vType;
-        entryTime = time(0); // Captures current system time
-    }
-    // Getters
-    std::string getPlate() const { 
-        return plateNumber; 
+    Vehicle(std::string plate, std::string t) : plateNumber(plate), type(t) {
+        entryTime = time(0);
     }
 
-    std::string getType() const { 
-        return type; 
-    }
-
-    time_t getEntryTime() const { 
-        return entryTime; 
-    }
+    std::string getPlate() const { return plateNumber; }
+    std::string getType() const { return type; }
+    time_t getEntryTime() const { return entryTime; }
 };
+
 #endif
