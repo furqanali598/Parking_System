@@ -19,6 +19,7 @@ private:
     SlotNode* head;
     int totalSlots;
 public:
+SlotNode* getHead() { return head; }
 bool releaseSlot(std::string plate) {
         SlotNode* temp = head;
         while (temp) {

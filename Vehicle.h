@@ -1,16 +1,25 @@
 #ifndef VEHICLE_H
 #define VEHICLE_H
+
 #include <string>
-enum VehicleType { SEDAN, SUV, VAN, MOTORBIKE };
+#include <ctime>
+
 class Vehicle {
 private:
-    std::string licensePlate;
-    VehicleType type;
-public:
-    Vehicle(std::string plate, VehicleType t) : licensePlate(plate), type(t) {}
+    std::string plateNumber;
+    std::string type; // "Car" or "Bike"
+    time_t entryTime;
 
-    std::string getLicensePlate() const { return licensePlate; }
-    VehicleType getType() const { return type; }
-    
+public:
+    Vehicle(std::string plate, std::string vType) {
+        plateNumber = plate;
+        type = vType;
+        entryTime = time(0); // Records current time
+    }
+
+    std::string getPlate() const { return plateNumber; }
+    std::string getType() const { return type; }
+    time_t getEntryTime() const { return entryTime; }
 };
+
 #endif

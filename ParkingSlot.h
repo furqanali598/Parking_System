@@ -2,6 +2,7 @@
 #define PARKINGSLOT_H
 
 #include <string>
+#include "Vehicle.h" // <--- ADD THIS LINE
 
 enum SlotStatus { AVAILABLE, OCCUPIED, RESERVED };
 
@@ -9,26 +10,34 @@ class ParkingSlot {
 private:
     int slotId;
     SlotStatus status;
-    std::string vehicleNumber;
+    Vehicle* parkedVehicle; // Now the compiler will know what this is
 
 public:
-// Get the plate to find the car later
-    std::string getPlate() const { return vehicleNumber; }
-bool isOccupied() const { return status == OCCUPIED; }
-    ParkingSlot(int id) : slotId(id), status(AVAILABLE), vehicleNumber("") {}
+    ParkingSlot(int id) : slotId(id), status(AVAILABLE), parkedVehicle(nullptr) {}
 
     int getSlotId() const { return slotId; }
-    SlotStatus getStatus() const { return status; }
+    SlotStatus getStatus() const { return status; } // Make sure this is public
     void setStatus(SlotStatus s) { status = s; }
     
-    void occupy(std::string plate) {
-        vehicleNumber = plate;
+    // Add these helper functions that the errors said were missing
+    Vehicle* getVehicle() { return parkedVehicle; }
+    
+    std::string getPlate() const { 
+        if (parkedVehicle) return parkedVehicle->getPlate();
+        return "";
+    }
+
+    void occupy(Vehicle* v) {
+        parkedVehicle = v;
         status = OCCUPIED;
     }
+
     void release() {
-        vehicleNumber = "";
+        if (parkedVehicle) {
+            delete parkedVehicle;
+            parkedVehicle = nullptr;
+        }
         status = AVAILABLE;
     }
 };
-
 #endif
