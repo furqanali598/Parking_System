@@ -26,7 +26,6 @@ int main() {
         std::cout << "4. Exit System" << std::endl;
         std::cout << "------------------------------------" << std::endl;
         std::cout << "Enter Choice: ";
-        
         // Input Validation: Prevents infinite loops if a non-integer is entered
         if (!(std::cin >> choice)) {
             std::cout << "\n[!] Invalid input. Please enter a number (1-4)." << std::endl;
@@ -66,6 +65,5 @@ int main() {
             std::cout << "[!] Invalid option. Please select 1-4." << std::endl;
         }
     }
-
     return 0;
 }
