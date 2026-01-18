@@ -22,6 +22,19 @@ private:
     AreaNode* areaHead;
 
 public:
+bool releaseVehicle(std::string plate) {
+        AreaNode* tempArea = areaHead;
+        while (tempArea) {
+            if (tempArea->area->releaseSlot(plate)) {
+                std::cout << "Vehicle " << plate << " has successfully left " 
+                          << tempArea->area->getAreaName() << "." << std::endl;
+                return true;
+            }
+            tempArea = tempArea->next;
+        }
+        std::cout << "Error: Vehicle with plate " << plate << " not found in this zone." << std::endl;
+        return false;
+    }
     Zone(std::string name) : zoneName(name), areaHead(nullptr) {}
 
     bool parkVehicle(std::string plate) {
