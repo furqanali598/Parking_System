@@ -29,7 +29,6 @@ int main() {
     Zone northZone("North Sector");
     northZone.addArea("Block-A");
     northZone.addArea("Block-B");
-
     // 2. Initialize slots in each block
     northZone.addSlotsToArea("Block-A", 3);
     northZone.addSlotsToArea("Block-B", 2);
