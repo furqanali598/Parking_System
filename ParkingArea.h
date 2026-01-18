@@ -12,7 +12,6 @@ struct SlotNode {
         next = nullptr;
     }
 };
-
 class ParkingArea {
 private:
     std::string areaName;
