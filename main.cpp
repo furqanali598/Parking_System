@@ -20,13 +20,18 @@ int main() {
         std::cout << "Enter choice: ";
         std::cin >> choice;
 
+       std::cout << "1. Display Zone Status\n2. Park a Vehicle\n3. Unpark a Vehicle\n4. Exit\nChoice: ";
+        std::cin >> choice;
+
         if (choice == 1) {
             northZone.displayZoneSummary();
         } else if (choice == 2) {
-            std::cout << "Enter License Plate: ";
-            std::cin >> plate;
+            std::cout << "Enter Plate: "; std::cin >> plate;
             northZone.parkVehicle(plate);
         } else if (choice == 3) {
+            std::cout << "Enter Plate to Unpark: "; std::cin >> plate;
+            northZone.releaseVehicle(plate);
+        } else if (choice == 4) {
             break;
         }
     }
