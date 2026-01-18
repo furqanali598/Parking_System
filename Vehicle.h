@@ -11,5 +11,6 @@ public:
 
     std::string getLicensePlate() const { return licensePlate; }
     VehicleType getType() const { return type; }
+    
 };
 #endif
