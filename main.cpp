@@ -1,52 +1,65 @@
 #include <iostream>
 #include <string>
-#include "Vehicle.h"
 #include "Zone.h"
+#include "Vehicle.h"
 
 int main() {
+    // Initialization
     Zone northZone("North Sector");
     northZone.addArea("Block-A");
     northZone.addArea("Block-B");
-    
-    // Adding initial slots
-    northZone.addSlotsToArea("Block-A", 5);
-    northZone.addSlotsToArea("Block-B", 5);
+
+    // Pre-fill slots
+    northZone.addSlotsToArea("Block-A", 3);
+    northZone.addSlotsToArea("Block-B", 2);
 
     int choice;
-    std::string plate; // <--- Make sure this is here!
+    std::string plate;
 
     while (true) {
-        std::cout << "\n--- Smart Parking System ---" << std::endl;
+        std::cout << "\n--- Smart Parking Menu ---" << std::endl;
         std::cout << "1. Display Zone Status" << std::endl;
         std::cout << "2. Park a Vehicle" << std::endl;
         std::cout << "3. Unpark a Vehicle" << std::endl;
         std::cout << "4. Exit" << std::endl;
         std::cout << "Enter choice: ";
-        std::cin >> choice;
+        
+        if (!(std::cin >> choice)) { // Input validation
+            std::cout << "Invalid input. Please enter a number." << std::endl;
+            std::cin.clear();
+            std::cin.ignore(1000, '\n');
+            continue;
+        }
 
         if (choice == 1) {
             northZone.displayZoneSummary();
         } 
-        // --- ADD YOUR CODE HERE ---
         else if (choice == 2) {
             std::string vType;
-            std::cout << "Enter License Plate: ";
+            std::cout << "Enter Plate Number: ";
             std::cin >> plate;
             std::cout << "Enter Type (Car/Bike): ";
             std::cin >> vType;
             
-            // Create a new vehicle object and pass it to the zone
             Vehicle* newVehicle = new Vehicle(plate, vType);
             northZone.parkVehicle(newVehicle);
         }
-        // --------------------------
         else if (choice == 3) {
             std::cout << "Enter Plate to Unpark: ";
             std::cin >> plate;
-            northZone.releaseVehicle(plate);
-        } else if (choice == 4) {
+            
+            if (!northZone.releaseVehicle(plate)) {
+                std::cout << "\n[!] ERROR: Vehicle '" << plate << "' not found in the system." << std::endl;
+            }
+        } 
+        else if (choice == 4) {
+            std::cout << "Shutting down system. Goodbye!" << std::endl;
             break;
+        } 
+        else {
+            std::cout << "Invalid option selected." << std::endl;
         }
     }
+
     return 0;
 }

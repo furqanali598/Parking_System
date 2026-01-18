@@ -3,15 +3,14 @@
 
 #include <iostream>
 #include <string>
-#include <ctime>     // <--- ADD THIS for time functions
+#include <ctime>
 #include "ParkingArea.h"
-#include "Vehicle.h" // <--- ADD THIS for Vehicle*
+#include "Vehicle.h"
 
-// This is the correct structure for Zone.h
-struct AreaNode {
+class AreaNode {
+public:
     ParkingArea* area;
     AreaNode* next;
-
     AreaNode(std::string name) {
         area = new ParkingArea(name);
         next = nullptr;
@@ -22,52 +21,10 @@ class Zone {
 private:
     std::string zoneName;
     AreaNode* areaHead;
+    double totalEarnings; // Track total revenue
 
 public:
-bool releaseVehicle(std::string plate) {
-        AreaNode* tempArea = areaHead;
-        while (tempArea) {
-            SlotNode* tempSlot = tempArea->area->getHead(); // You'll need a getter for head in ParkingArea
-            while (tempSlot) {
-                if (tempSlot->slot->getStatus() == OCCUPIED && tempSlot->slot->getVehicle()->getPlate() == plate) {
-                    
-                    // Calculate Time & Fee
-                    time_t exitTime = time(0);
-                    double seconds = difftime(exitTime, tempSlot->slot->getVehicle()->getEntryTime());
-                    double hours = (seconds / 3600.0) + 1; // Minimum 1 hour charge
-                    double rate = (tempSlot->slot->getVehicle()->getType() == "Car") ? 50.0 : 20.0;
-                    
-                    std::cout << "\n--- Receipt ---" << std::endl;
-                    std::cout << "Vehicle: " << plate << " (" << tempSlot->slot->getVehicle()->getType() << ")" << std::endl;
-                    std::cout << "Total Fee: " << hours * rate << " PKR" << std::endl;
-
-                    tempSlot->slot->release();
-                    return true;
-                }
-                tempSlot = tempSlot->next;
-            }
-            tempArea = tempArea->next;
-        }
-        return false;
-    }
-    Zone(std::string name) : zoneName(name), areaHead(nullptr) {}
-
-   bool parkVehicle(Vehicle* v) {
-        AreaNode* tempArea = areaHead;
-        while (tempArea) {
-            ParkingSlot* spot = tempArea->area->findEmptySlot();
-            if (spot) {
-                spot->occupy(v); // Now passes the whole vehicle object
-                std::cout << "Successfully parked " << v->getPlate() << " in " 
-                          << tempArea->area->getAreaName() << std::endl;
-                return true;
-            }
-            tempArea = tempArea->next;
-        }
-        std::cout << "Parking Full!" << std::endl;
-        delete v; // Clean up memory if parking failed
-        return false;
-    }
+    Zone(std::string name) : zoneName(name), areaHead(nullptr), totalEarnings(0.0) {}
 
     void addArea(std::string name) {
         AreaNode* newNode = new AreaNode(name);
@@ -75,34 +32,48 @@ bool releaseVehicle(std::string plate) {
             areaHead = newNode;
         } else {
             AreaNode* temp = areaHead;
-            while (temp->next) {
-                temp = temp->next;
-            }
+            while (temp->next) temp = temp->next;
             temp->next = newNode;
         }
     }
 
     void addSlotsToArea(std::string areaName, int count) {
-    AreaNode* temp = areaHead;
-    while (temp) {
-        if (temp->area->getAreaName() == areaName) {
-            for (int i = 1; i <= count; i++) {
-                temp->area->addSlot(i); // Adds slots with IDs 1, 2, 3...
-            }
-            return;
-        }
-        temp = temp->next;
-    }
-}
-
-    void displayZoneSummary() {
-        std::cout << "--- Zone: " << zoneName << " ---" << std::endl;
         AreaNode* temp = areaHead;
         while (temp) {
-            temp->area->displayAreaStatus();
+            if (temp->area->getAreaName() == areaName) {
+                for (int i = 1; i <= count; i++) {
+                    temp->area->addSlot(i);
+                }
+                return;
+            }
             temp = temp->next;
         }
     }
-};
 
-#endif
+    bool parkVehicle(Vehicle* v) {
+        AreaNode* tempArea = areaHead;
+        while (tempArea) {
+            ParkingSlot* spot = tempArea->area->findEmptySlot();
+            if (spot) {
+                spot->occupy(v);
+                std::cout << "\n[SUCCESS] " << v->getPlate() << " parked in " 
+                          << tempArea->area->getAreaName() << " (Slot " << spot->getSlotId() << ")" << std::endl;
+                return true;
+            }
+            tempArea = tempArea->next;
+        }
+        std::cout << "\n[!] ERROR: Parking is full in all areas of " << zoneName << std::endl;
+        delete v; 
+        return false;
+    }
+
+    bool releaseVehicle(std::string plate) {
+        AreaNode* tempArea = areaHead;
+        while (tempArea) {
+            SlotNode* tempSlot = tempArea->area->getHead();
+            while (tempSlot) {
+                if (tempSlot->slot->getStatus() == OCCUPIED && tempSlot->slot->getPlate() == plate) {
+                    
+                    // Fee Calculation logic
+                    time_t exitTime = time(0);
+                    double seconds = difftime(exitTime, tempSlot->slot->
