@@ -17,7 +17,6 @@ public:
         type = vType;
         entryTime = time(0); // Captures current system time
     }
-
     // Getters
     std::string getPlate() const { 
         return plateNumber; 
@@ -31,5 +30,4 @@ public:
         return entryTime; 
     }
 };
-
 #endif
