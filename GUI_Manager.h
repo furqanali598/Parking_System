@@ -5,110 +5,152 @@
 #include <string>
 #include "Zone.h"
 
-// Unique IDs for buttons
-#define ID_REFRESH_BUTTON 101
-#define ID_EXIT_BUTTON 102
+#define ID_BTN_PARK 201
+#define ID_BTN_UNPARK 202
+#define ID_INPUT_PLATE 203
+#define ID_INPUT_TYPE 204
 
 class ParkingGUI {
 public:
-    static Zone* currentZone; // Static pointer so the Window Procedure can see the data
+    static Zone* currentZone;
+    static HWND hPlateInput, hTypeInput;
 
     static LRESULT CALLBACK WindowProcedure(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp) {
         switch (msg) {
-        case WM_CREATE:
-            // Create a "Refresh" Button
-            CreateWindowW(L"Button", L"Refresh Map", WS_VISIBLE | WS_CHILD | BS_PUSHBUTTON,
-                          50, 400, 120, 40, hwnd, (HMENU)ID_REFRESH_BUTTON, NULL, NULL);
-            
-            // Create an "Exit" Button
-            CreateWindowW(L"Button", L"Close View", WS_VISIBLE | WS_CHILD | BS_PUSHBUTTON,
-                          200, 400, 120, 40, hwnd, (HMENU)ID_EXIT_BUTTON, NULL, NULL);
-            break;
+        case WM_CREATE: {
+            HFONT hNormalFont = CreateFontA(18, 0, 0, 0, FW_MEDIUM, FALSE, FALSE, FALSE, ANSI_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY, DEFAULT_PITCH | FF_SWISS, "Segoe UI");
+
+            // Input Labels
+            HWND hL1 = CreateWindowW(L"Static", L"Plate Number:", WS_VISIBLE | WS_CHILD, 50, 420, 120, 25, hwnd, NULL, NULL, NULL);
+            hPlateInput = CreateWindowW(L"Edit", L"", WS_VISIBLE | WS_CHILD | WS_BORDER, 180, 420, 150, 25, hwnd, (HMENU)ID_INPUT_PLATE, NULL, NULL);
+
+            HWND hL2 = CreateWindowW(L"Static", L"Type (Car/Bike):", WS_VISIBLE | WS_CHILD, 50, 455, 120, 25, hwnd, NULL, NULL, NULL);
+            hTypeInput = CreateWindowW(L"Edit", L"Car", WS_VISIBLE | WS_CHILD | WS_BORDER, 180, 455, 150, 25, hwnd, (HMENU)ID_INPUT_TYPE, NULL, NULL);
+
+            // Buttons
+            HWND hBtnPark = CreateWindowW(L"Button", L"PARK VEHICLE", WS_VISIBLE | WS_CHILD | BS_PUSHBUTTON, 350, 418, 130, 30, hwnd, (HMENU)ID_BTN_PARK, NULL, NULL);
+            HWND hBtnUnpark = CreateWindowW(L"Button", L"UNPARK", WS_VISIBLE | WS_CHILD | BS_PUSHBUTTON, 350, 453, 130, 30, hwnd, (HMENU)ID_BTN_UNPARK, NULL, NULL);
+
+            // Set font for inputs and labels
+            SendMessage(hL1, WM_SETFONT, (WPARAM)hNormalFont, TRUE);
+            SendMessage(hL2, WM_SETFONT, (WPARAM)hNormalFont, TRUE);
+            SendMessage(hPlateInput, WM_SETFONT, (WPARAM)hNormalFont, TRUE);
+            SendMessage(hTypeInput, WM_SETFONT, (WPARAM)hNormalFont, TRUE);
+            SendMessage(hBtnPark, WM_SETFONT, (WPARAM)hNormalFont, TRUE);
+            SendMessage(hBtnUnpark, WM_SETFONT, (WPARAM)hNormalFont, TRUE);
+        } break;
 
         case WM_COMMAND:
-            if (LOWORD(wp) == ID_REFRESH_BUTTON) {
-                InvalidateRect(hwnd, NULL, TRUE); // Tells Windows to redraw the screen
-            }
-            else if (LOWORD(wp) == ID_EXIT_BUTTON) {
-                PostQuitMessage(0);
+            if (LOWORD(wp) == ID_BTN_PARK) {
+                char plate[20], type[20];
+                GetWindowTextA(hPlateInput, plate, 20);
+                GetWindowTextA(hTypeInput, type, 20);
+                if (strlen(plate) > 0) {
+                    currentZone->parkVehicle(new Vehicle(plate, type));
+                    SetWindowTextA(hPlateInput, "");
+                    InvalidateRect(hwnd, NULL, TRUE);
+                }
+            } else if (LOWORD(wp) == ID_BTN_UNPARK) {
+                char plate[20];
+                GetWindowTextA(hPlateInput, plate, 20);
+                if (currentZone->releaseVehicle(plate)) {
+                    MessageBoxA(hwnd, "Vehicle Released!", "Success", MB_OK);
+                } else {
+                    MessageBoxA(hwnd, "Plate not found!", "Error", MB_ICONERROR);
+                }
+                InvalidateRect(hwnd, NULL, TRUE);
             }
             break;
 
         case WM_PAINT: {
             PAINTSTRUCT ps;
             HDC hdc = BeginPaint(hwnd, &ps);
+
+            // White Background
+            HBRUSH hBg = CreateSolidBrush(RGB(255, 255, 255));
+            FillRect(hdc, &ps.rcPaint, hBg);
+            DeleteObject(hBg);
+
+            SetBkMode(hdc, TRANSPARENT);
             
-            // Set Background Color
-            HBRUSH brush = CreateSolidBrush(RGB(240, 240, 240));
-            FillRect(hdc, &ps.rcPaint, brush);
-            DeleteObject(brush);
+            // Title
+            HFONT hTitleFont = CreateFontA(26, 0, 0, 0, FW_BOLD, FALSE, FALSE, FALSE, ANSI_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY, DEFAULT_PITCH | FF_SWISS, "Segoe UI");
+            SelectObject(hdc, hTitleFont);
+            SetTextColor(hdc, RGB(20, 60, 120)); // Navy Blue
+            TextOutA(hdc, 50, 20, "SMART PARKING MANAGEMENT SYSTEM", 31);
+            DeleteObject(hTitleFont);
 
-            // Title Text
-            SetTextColor(hdc, RGB(0, 102, 204));
-            TextOutA(hdc, 50, 20, "--- SMART PARKING SYSTEM LIVE VIEW ---", 38);
+            // Drawing Areas and Slots
+            HFONT hLabelFont = CreateFontA(20, 0, 0, 0, FW_BOLD, FALSE, FALSE, FALSE, ANSI_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY, DEFAULT_PITCH | FF_SWISS, "Segoe UI");
+            SelectObject(hdc, hLabelFont);
 
-            // Loop through data and draw
-            int yPos = 60;
-            AreaNode* tempArea = currentZone->getAreaHead();
-            while (tempArea) {
-                TextOutA(hdc, 50, yPos, ("BLOCK: " + tempArea->area->getAreaName()).c_str(), 15);
-                yPos += 25;
+            int y = 80;
+            AreaNode* areaNode = currentZone->getAreaHead();
+            while (areaNode) {
+                SetTextColor(hdc, RGB(50, 50, 50));
+                TextOutA(hdc, 50, y, areaNode->area->getAreaName().c_str(), areaNode->area->getAreaName().length());
+                y += 40;
 
-                SlotNode* tempSlot = tempArea->area->getHead();
-                while (tempSlot) {
-                    std::string slotInfo = "Slot " + std::to_string(tempSlot->slot->getSlotId()) + ": ";
-                    if (tempSlot->slot->getStatus() == 1) {
-                        SetTextColor(hdc, RGB(200, 0, 0)); // Red for Busy
-                        slotInfo += "[ OCCUPIED ] " + tempSlot->slot->getPlate();
-                    } else {
-                        SetTextColor(hdc, RGB(0, 150, 0)); // Green for Free
-                        slotInfo += "[ AVAILABLE ]";
-                    }
-                    TextOutA(hdc, 70, yPos, slotInfo.c_str(), slotInfo.length());
-                    yPos += 20;
-                    tempSlot = tempSlot->next;
+                SlotNode* slotNode = areaNode->area->getHead();
+                int x = 50;
+                while (slotNode) {
+                    // Draw Rounded-look Rectangles
+                    HBRUSH hBr = (slotNode->slot->getStatus() == 1) ? CreateSolidBrush(RGB(230, 60, 60)) : CreateSolidBrush(RGB(60, 200, 80));
+                    RECT r = { x, y, x + 75, y + 60 };
+                    FillRect(hdc, &r, hBr);
+                    FrameRect(hdc, &r, (HBRUSH)GetStockObject(GRAY_BRUSH));
+
+                    SetTextColor(hdc, RGB(255, 255, 255));
+                    std::string sId = std::to_string(slotNode->slot->getSlotId());
+                    TextOutA(hdc, x + 30, y + 20, sId.c_str(), sId.length());
+
+                    DeleteObject(hBr);
+                    x += 90;
+                    slotNode = slotNode->next;
                 }
-                yPos += 15;
-                tempArea = tempArea->next;
+                y += 100;
+                areaNode = areaNode->next;
             }
-
+            DeleteObject(hLabelFont);
             EndPaint(hwnd, &ps);
         } break;
 
-        case WM_DESTROY:
-            PostQuitMessage(0);
-            break;
-        default:
-            return DefWindowProcW(hwnd, msg, wp, lp);
+        case WM_CTLCOLORSTATIC: {
+            // This makes the text labels have a white background to match the window
+            HDC hdcStatic = (HDC)wp;
+            SetBkColor(hdcStatic, RGB(255, 255, 255));
+            return (LRESULT)GetStockObject(WHITE_BRUSH);
+        }
+
+        case WM_DESTROY: PostQuitMessage(0); break;
+        default: return DefWindowProcW(hwnd, msg, wp, lp);
         }
         return 0;
     }
 
     void run(Zone& northZone) {
         currentZone = &northZone;
+        HINSTANCE hInst = GetModuleHandle(NULL);
         WNDCLASSW wc = {0};
-        wc.hbrBackground = (HBRUSH)COLOR_WINDOW;
-        wc.hCursor = LoadCursor(NULL, IDC_ARROW);
-        wc.hInstance = GetModuleHandle(NULL);
-        wc.lpszClassName = L"ParkingWindowClass";
+        wc.lpszClassName = L"ModernGUIClass";
         wc.lpfnWndProc = WindowProcedure;
+        wc.hbrBackground = (HBRUSH)GetStockObject(WHITE_BRUSH);
+        wc.hCursor = LoadCursor(NULL, IDC_ARROW);
+        RegisterClassW(&wc);
 
-        if (!RegisterClassW(&wc)) return;
+        CreateWindowW(L"ModernGUIClass", L"Parking Control Center", WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU | WS_MINIMIZEBOX | WS_VISIBLE, 200, 100, 550, 580, NULL, NULL, hInst, NULL);
 
-        HWND hwnd = CreateWindowW(L"ParkingWindowClass", L"Live Parking Dashboard",
-                                  WS_OVERLAPPEDWINDOW | WS_VISIBLE,
-                                  100, 100, 500, 550, NULL, NULL, NULL, NULL);
-
-        MSG msg = {0};
+        MSG msg;
         while (GetMessage(&msg, NULL, 0, 0)) {
             TranslateMessage(&msg);
             DispatchMessage(&msg);
         }
-        UnregisterClassW(L"ParkingWindowClass", GetModuleHandle(NULL));
+        UnregisterClassW(L"ModernGUIClass", hInst);
     }
 };
 
-// Initialize static pointer
 Zone* ParkingGUI::currentZone = nullptr;
+HWND ParkingGUI::hPlateInput = nullptr;
+HWND ParkingGUI::hTypeInput = nullptr;
 
 #endif
