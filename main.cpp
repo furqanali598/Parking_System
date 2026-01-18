@@ -1,9 +1,30 @@
+#include <windows.h>
 #include <iostream>
 #include <string>
 #include "Zone.h"
 #include "Vehicle.h"
 
+// MOVE THE LOGO OUTSIDE OF MAIN
+void displayLogo() {
+    std::cout << "\033[33m"; // Switch to Yellow
+    std::cout << "  ____                  _     ____               _    " << std::endl;
+    std::cout << " / ___| _ __ ___   __ _| _|_ |  _ \\  __ _  _ __ | | __" << std::endl;
+    std::cout << " \\___ \\| '_ ` _ \\ / _` |/ _` || |_) |/ _` || '__|| |/ /" << std::endl;
+    std::cout << "  ___) || | | | | | (_| || (_| ||  __/| (_| || |   |   < " << std::endl;
+    std::cout << " |____/|_| |_| |_|\\__,_|\\__,_||_|    \\__,_||_|   |_|\\_\\" << std::endl;
+    std::cout << "                                                       " << std::endl;
+    std::cout << "           SMART PARKING MANAGEMENT SYSTEM             " << std::endl;
+    std::cout << "\033[0m"; // Reset to default color
+    std::cout << "-------------------------------------------------------" << std::endl;
+}
+
 int main() {
+    // This enables ANSI colors in the Windows terminal
+    system(""); 
+    
+    // Call the logo function
+    displayLogo();
+
     // 1. Setup the System
     Zone northZone("North Sector");
     northZone.addArea("Block-A");
@@ -26,7 +47,7 @@ int main() {
         std::cout << "4. Exit System" << std::endl;
         std::cout << "------------------------------------" << std::endl;
         std::cout << "Enter Choice: ";
-        // Input Validation: Prevents infinite loops if a non-integer is entered
+
         if (!(std::cin >> choice)) {
             std::cout << "\n[!] Invalid input. Please enter a number (1-4)." << std::endl;
             std::cin.clear();
@@ -44,7 +65,6 @@ int main() {
             std::cout << "Enter Vehicle Type (Car/Bike): ";
             std::cin >> vType;
             
-            // Dynamically create a new vehicle and pass it to the zone
             Vehicle* newVehicle = new Vehicle(plate, vType);
             northZone.parkVehicle(newVehicle);
         }
@@ -52,7 +72,6 @@ int main() {
             std::cout << "Enter Plate to Unpark: ";
             std::cin >> plate;
             
-            // Check if unparking was successful
             if (!northZone.releaseVehicle(plate)) {
                 std::cout << "\n[!] ERROR: Vehicle '" << plate << "' not found in any block." << std::endl;
             }
