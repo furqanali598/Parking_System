@@ -19,7 +19,17 @@ private:
     SlotNode* head;
     int totalSlots;
 public:
-
+bool releaseSlot(std::string plate) {
+        SlotNode* temp = head;
+        while (temp) {
+            if (temp->slot->getStatus() == OCCUPIED && temp->slot->getPlate() == plate) {
+                temp->slot->release();
+                return true;
+            }
+            temp = temp->next;
+        }
+        return false;
+    }
 std::string getAreaName() { return areaName; }
 ParkingSlot* findEmptySlot() {
     SlotNode* temp = head;
