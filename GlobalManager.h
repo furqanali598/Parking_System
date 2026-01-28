@@ -1,7 +1,6 @@
 #ifndef ZONE_H
 #define ZONE_H
-#include "Vehicle.h"
-
+#include "Zone.h"
 #include <string>
 #include <ctime>
 #include <vector>
@@ -24,6 +23,8 @@ private:
 public:
     Zone(std::string name, int x, int y) : zoneName(name), head(nullptr), posX(x), posY(y) {}
 
+    int getX() { return posX; }
+    int getY() { return posY; }
     std::string getName() { return zoneName; }
     AreaNode* getAreaHead() { return head; }
 
@@ -48,54 +49,48 @@ public:
         }
     }
 
-    std::string findVehicleLocation(std::string plate) {
+    bool isAlreadyParked(std::string plate) {
         AreaNode* tempArea = head;
         while (tempArea) {
             SlotNode* tempSlot = tempArea->area->getHead();
             while (tempSlot) {
-                if (tempSlot->slot->getStatus() == 1 && tempSlot->slot->getPlate() == plate) {
-                    return "Building: " + zoneName + ", " + tempArea->area->getAreaName() + 
-                           ", Slot: S-" + std::to_string(tempSlot->slot->getSlotId());
-                }
+                if (tempSlot->slot->getStatus() == 1 && tempSlot->slot->getPlate() == plate) return true;
                 tempSlot = tempSlot->next;
             }
             tempArea = tempArea->next;
         }
-        return "";
+        return false;
     }
 
-    bool parkInSpecificArea(Vehicle* v, std::string floorName) {
+    bool parkVehicle(Vehicle* v) {
+        if (isAlreadyParked(v->getPlate())) {
+            MessageBoxA(NULL, "Vehicle already in building!", "Error", MB_ICONERROR);
+            delete v;
+            return false;
+        }
         AreaNode* temp = head;
         while (temp) {
-            if (temp->area->getAreaName() == floorName) {
-                ParkingSlot* spot = temp->area->findEmptySlot();
-                if (spot) { spot->occupy(v); return true; }
-                else {
-                    MessageBoxA(NULL, (floorName + " is full!").c_str(), "Floor Full", MB_OK | MB_ICONWARNING);
-                    return false;
-                }
-            }
+            ParkingSlot* spot = temp->area->findEmptySlot();
+            if (spot) { spot->occupy(v); return true; }
             temp = temp->next;
         }
         return false;
     }
 
-    // UPDATED: Now returns the vehicle type so GUI can calculate price
-    std::string releaseAndGetType(std::string plate) {
+    bool releaseVehicle(std::string plate) {
         AreaNode* tempArea = head;
         while (tempArea) {
             SlotNode* tempSlot = tempArea->area->getHead();
             while (tempSlot) {
                 if (tempSlot->slot->getStatus() == 1 && tempSlot->slot->getPlate() == plate) {
-                    std::string type = tempSlot->slot->getVehicleType();
                     tempSlot->slot->release();
-                    return type; // Return "Car" or "Bike"
+                    return true;
                 }
                 tempSlot = tempSlot->next;
             }
             tempArea = tempArea->next;
         }
-        return ""; // Not found
+        return false;
     }
 };
 
@@ -104,22 +99,22 @@ private:
     std::vector<Zone*> buildings;
 public:
     void addBuilding(Zone* z) { buildings.push_back(z); }
-    std::vector<Zone*>& getBuildings() { return buildings; }
-    std::string getGlobalVehicleLocation(std::string plate) {
+    const std::vector<Zone*>& getBuildings() { return buildings; }
+
+    Zone* findNearestAvailable(int userX, int userY) {
+        Zone* nearest = nullptr;
+        double minDistance = 1e18;
         for (Zone* b : buildings) {
-            std::string loc = b->findVehicleLocation(plate);
-            if (!loc.empty()) return loc;
+            double dist = std::sqrt(std::pow(b->getX() - userX, 2) + std::pow(b->getY() - userY, 2));
+            if (dist < minDistance) {
+                AreaNode* temp = b->getAreaHead();
+                while(temp) {
+                    if(temp->area->findEmptySlot()) { minDistance = dist; nearest = b; break; }
+                    temp = temp->next;
+                }
+            }
         }
-        return "";
-    }
-    void searchGlobal(std::string plate) {
-        std::string loc = getGlobalVehicleLocation(plate);
-        if (!loc.empty()) {
-            std::string msg = "Vehicle Found!\nPlate: " + plate + "\n" + loc;
-            MessageBoxA(NULL, msg.c_str(), "Search Result", MB_OK | MB_ICONINFORMATION);
-        } else {
-            MessageBoxA(NULL, "Vehicle not found in the Gulberg network.", "Search Result", MB_OK | MB_ICONERROR);
-        }
+        return nearest;
     }
 };
 
