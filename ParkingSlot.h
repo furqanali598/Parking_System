@@ -1,47 +1,44 @@
-#ifndef PARKING_SLOT_H
-#define PARKING_SLOT_H
+#ifndef PARKINGSLOT_H
+#define PARKINGSLOT_H
 
 #include <string>
-#include "Vehicle.h"
+#include "Vehicle.h" // Ensure this is included
 
-// Defined these so ParkingArea.h stops complaining
-#define AVAILABLE 0
-#define OCCUPIED 1
+class Vehicle; // Forward declaration
 
 class ParkingSlot {
 private:
     int slotId;
     int status; 
-    Vehicle* vehicle;
+    Vehicle* vehicle; // Now the compiler knows this is a pointer to 'something' called Vehicle
 
 public:
-    ParkingSlot(int id) : slotId(id), status(AVAILABLE), vehicle(nullptr) {}
+    ParkingSlot(int id) : slotId(id), status(0), vehicle(nullptr) {}
 
-    int getSlotId() const { return slotId; }
-    int getStatus() const { return status; }
-    
-    // Helper for GUI and Receipt logic
-    Vehicle* getVehicle() { return vehicle; }
+    int getStatus() { return status; }
+    int getSlotId() { return slotId; }
 
-    std::string getPlate() const {
-        return (vehicle != nullptr) ? vehicle->getPlate() : "";
+    std::string getVehicleType() {
+        if (status == 1 && vehicle != nullptr) {
+            return vehicle->getType(); 
+        }
+        return "";
     }
 
-    std::string getType() const {
-        if (vehicle != nullptr) return vehicle->getType();
-        return "Empty";
+    std::string getPlate() {
+        if (status == 1 && vehicle != nullptr) return vehicle->getPlate();
+        return "";
     }
 
-    // Renamed to occupy to match your Zone.h
     void occupy(Vehicle* v) {
         vehicle = v;
-        status = OCCUPIED;
+        status = 1;
     }
 
     void release() {
         delete vehicle;
         vehicle = nullptr;
-        status = AVAILABLE;
+        status = 0;
     }
 };
 

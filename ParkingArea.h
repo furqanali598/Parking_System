@@ -1,8 +1,8 @@
-#ifndef PARKING_AREA_H
-#define PARKING_AREA_H
+#ifndef PARKINGAREA_H
+#define PARKINGAREA_H
 
 #include <string>
-#include <iostream>
+#include <vector>
 #include "ParkingSlot.h"
 
 struct SlotNode {
@@ -15,13 +15,15 @@ class ParkingArea {
 private:
     std::string areaName;
     SlotNode* head;
+    int totalSlots;
 
 public:
-    ParkingArea(std::string name) : areaName(name), head(nullptr) {}
+    ParkingArea(std::string name) : areaName(name), head(nullptr), totalSlots(0) {}
 
     void addSlots(int count) {
         for (int i = 1; i <= count; i++) {
-            SlotNode* newNode = new SlotNode(i);
+            totalSlots++;
+            SlotNode* newNode = new SlotNode(totalSlots);
             if (!head) head = newNode;
             else {
                 SlotNode* temp = head;
@@ -31,17 +33,18 @@ public:
         }
     }
 
-    std::string getAreaName() { return areaName; }
-    SlotNode* getHead() { return head; }
-
     ParkingSlot* findEmptySlot() {
         SlotNode* temp = head;
         while (temp) {
-            if (temp->slot->getStatus() == AVAILABLE) return temp->slot;
+            // FIXED: Using 0 instead of the undeclared AVAILABLE
+            if (temp->slot->getStatus() == 0) return temp->slot;
             temp = temp->next;
         }
         return nullptr;
     }
+
+    std::string getAreaName() { return areaName; }
+    SlotNode* getHead() { return head; }
 };
 
 #endif

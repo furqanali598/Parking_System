@@ -1,22 +1,33 @@
-#include "Vehicle.h"
-#include "ParkingSlot.h"
-#include "ParkingArea.h"
 #include "Zone.h"          // 1. Define the data structures first
 #include "GUI_Manager.h"
 
 int main() {
-    Zone northZone("Terminal 1");
+    GlobalManager network;
 
-    // Adding Floors
-    northZone.addArea("1st Floor");
-    northZone.addArea("2nd Floor");
+    // 1. Mall 1 (2 floors basement parking)
+    Zone* mall = new Zone("Mall 1", 10, 10);
+    mall->addArea("Basement 1"); mall->addSlotsToArea("Basement 1", 8);
+    mall->addArea("Basement 2"); mall->addSlotsToArea("Basement 2", 8);
+    network.addBuilding(mall);
 
-    // Adding Slots to Floors (6 slots per floor looks best in Blueprint)
-    northZone.addSlotsToArea("1st Floor", 6);
-    northZone.addSlotsToArea("2nd Floor", 6);
+    // 2. Askari Tower (4 floors parking)
+    Zone* askari = new Zone("Askari Tower", 50, 50);
+    for(int i=1; i<=4; i++) {
+        std::string name = "Floor " + std::to_string(i);
+        askari->addArea(name); askari->addSlotsToArea(name, 8);
+    }
+    network.addBuilding(askari);
+
+    // 3. Monal (6 floors parking)
+    Zone* monal = new Zone("Monal", 100, 100);
+    for(int i=1; i<=6; i++) {
+        std::string name = "Level " + std::to_string(i);
+        monal->addArea(name); monal->addSlotsToArea(name, 8);
+    }
+    network.addBuilding(monal);
 
     ParkingGUI gui;
-    gui.run(northZone);
+    gui.run(network); 
 
     return 0;
 }
