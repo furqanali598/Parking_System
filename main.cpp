@@ -1,4 +1,3 @@
-#include "Zone.h"          // 1. Define the data structures first
 #include "GUI_Manager.h"
 
 int main() {
